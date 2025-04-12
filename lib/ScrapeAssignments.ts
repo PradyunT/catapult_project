@@ -88,4 +88,15 @@ export async function scrapeAssignments(): Promise<Task[]> {
   return tasks;
 }
 
-
+// Run it directly for a demo
+if (require.main === module) {
+  scrapeAssignments()
+    .then((assignments) => {
+      console.log(JSON.stringify(assignments, null, 2));
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('❌ Error scraping:', err);
+      process.exit(1);
+    });
+}

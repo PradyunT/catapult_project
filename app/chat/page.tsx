@@ -1,105 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { SidebarTrigger } from "@/components/sidebar-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Brain, ListTodo, RefreshCw, Send } from "lucide-react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { useChat } from "ai/react";
+import ReactMarkdown from "react-markdown"; // Import the component
+import remarkGfm from "remark-gfm"; // Import the GFM plugin
+import { SidebarTrigger } from "@/components/sidebar-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Brain, ListTodo, RefreshCw, Send } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  const [messages, setMessages] = React.useState<{ role: "user" | "assistant"; content: string }[]>([
-    { role: "assistant", content: "Hello! I'm your AI mentor. How can I help you today?" },
-  ])
-  const [input, setInput] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
-  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const { messages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
+    api: "/api/chat",
+    initialMessages: [
+      { id: "initial-greeting", role: "assistant", content: "Hello! I'm your AI mentor. How can I help you today?" },
+    ],
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
-    // Add user message
-    const userMessage = { role: "user" as const, content: input }
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
+  React.useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "I'm a placeholder response. In the full implementation, I would use the Gemini 2.0 Flash model to generate a proper response based on your message.",
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
-  }
-
+  // --- Handlers for AI Action Buttons ---
   const handleBreakdownGoals = () => {
-    setMessages((prev) => [...prev, { role: "user", content: "Can you help me break down my goals?" }])
-    setIsLoading(true)
-
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "I'd be happy to help you break down your goals! What specific goal would you like to work on? For example, you could say something like 'I want to work at Microsoft in 2 years' or 'I want to learn web development', and I'll help you create a step-by-step plan with actionable tasks.",
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
-  }
+    if (isLoading) return;
+    append({ role: "user", content: "Can you help me break down my goals?" });
+  };
 
   const handleDailyOverview = () => {
-    setMessages((prev) => [...prev, { role: "user", content: "Generate a daily overview for me." }])
-    setIsLoading(true)
+    if (isLoading) return;
+    append({ role: "user", content: "Generate a daily overview for me based on my tasks." });
+  };
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `# Daily Overview
-
-Based on your tasks and schedule, here's what you need to focus on today:
-
-## High Priority Tasks
-- Complete project proposal (due today at 5:00 PM)
-- Study for exam (due tomorrow)
-
-## Schedule
-- 9:00 AM - 10:00 AM: Team Meeting
-- 10:30 AM - 12:00 PM: Project Work
-- 2:00 PM - 4:00 PM: Study Session
-
-## Resources Used
-- Your task list
-- Your calendar
-- Your study materials
-
-Would you like me to help you prioritize these tasks or suggest a study plan?`,
-        },
-      ])
-      setIsLoading(false)
-    }, 1500)
-  }
-
-  // Scroll to bottom when messages change
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  const handleSuggestTasks = () => {
+    if (isLoading) return;
+    append({ role: "user", content: "Can you suggest some relevant tasks based on my current tasks or spaces?" });
+  };
 
   return (
     <div className="space-y-6">
+      {/* Header section */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">AI Mentor</h1>
@@ -111,6 +55,7 @@ Would you like me to help you prioritize these tasks or suggest a study plan?`,
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
+        {/* Chat Interface Column */}
         <div className="md:col-span-3">
           <Card className="flex h-[calc(100vh-12rem)] flex-col">
             <CardHeader className="px-4 py-3">
@@ -118,37 +63,41 @@ Would you like me to help you prioritize these tasks or suggest a study plan?`,
             </CardHeader>
             <CardContent className="flex-1 overflow-y-auto p-4">
               <div className="flex flex-col space-y-4">
-                {messages.map((message, index) => (
-                  <div key={index} className={cn("flex", message.role === "user" ? "justify-end" : "justify-start")}>
+                {messages.map((message) => (
+                  <div key={message.id} className={cn("flex", message.role === "user" ? "justify-end" : "justify-start")}>
                     <div
                       className={cn(
-                        "rounded-lg px-3 py-2 max-w-[80%]",
-                        message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
-                      )}
-                    >
-                      {message.content}
+                        // Keep styling for the bubble itself
+                        "prose dark:prose-invert", // Add prose for basic markdown styling (optional but helpful)
+                        "whitespace-pre-wrap rounded-lg px-3 py-2 max-w-[80%]",
+                        message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                      )}>
+                      {/* Use ReactMarkdown to render the content */}
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                     </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
-                {isLoading && (
+                {/* Loading indicator */}
+                {isLoading && messages.length > 0 && messages[messages.length - 1].role === "user" && (
                   <div className="flex justify-start">
                     <div className="rounded-lg bg-muted px-3 py-2">
                       <div className="flex space-x-1">
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-75"></div>
-                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-150"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0s]"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.1s]"></div>
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:0.2s]"></div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             </CardContent>
+            {/* Footer / Input section */}
             <CardFooter className="p-4 pt-2">
               <form onSubmit={handleSubmit} className="flex w-full space-x-2">
                 <Input
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Type your message..."
                   disabled={isLoading}
                   className="flex-1"
@@ -161,6 +110,8 @@ Would you like me to help you prioritize these tasks or suggest a study plan?`,
             </CardFooter>
           </Card>
         </div>
+
+        {/* AI Actions Column */}
         <div className="space-y-4">
           <Card>
             <CardHeader className="px-4 py-3">
@@ -168,25 +119,15 @@ Would you like me to help you prioritize these tasks or suggest a study plan?`,
             </CardHeader>
             <CardContent className="px-4 py-2">
               <div className="space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={handleBreakdownGoals}
-                  disabled={isLoading}
-                >
+                <Button variant="outline" className="w-full justify-start" onClick={handleBreakdownGoals} disabled={isLoading}>
                   <Brain className="mr-2 h-4 w-4" />
                   Break Down Goals
                 </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={handleDailyOverview}
-                  disabled={isLoading}
-                >
+                <Button variant="outline" className="w-full justify-start" onClick={handleDailyOverview} disabled={isLoading}>
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Generate Daily Overview
                 </Button>
-                <Button variant="outline" className="w-full justify-start" disabled={isLoading}>
+                <Button variant="outline" className="w-full justify-start" onClick={handleSuggestTasks} disabled={isLoading}>
                   <ListTodo className="mr-2 h-4 w-4" />
                   Suggest Tasks
                 </Button>
@@ -196,5 +137,5 @@ Would you like me to help you prioritize these tasks or suggest a study plan?`,
         </div>
       </div>
     </div>
-  )
+  );
 }

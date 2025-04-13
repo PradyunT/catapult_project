@@ -1,31 +1,34 @@
 // app/api/generate-plan/route.ts
 import { google } from "@ai-sdk/google";
-import { generateObject } from "ai"; // Import generateObject
+import { generateObject } from "ai";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { z } from "zod"; // Import zod
-import type { Database } from "@/lib/database.types"; // Import your generated types
+import { z } from "zod";
+import type { Database } from "@/lib/database.types"; // Adjust path if your types are elsewhere
 
-export const maxDuration = 90; // Allow more time for potentially complex plan generation
+export const maxDuration = 90;
 
-// Define the Zod schema for the expected JSON output
+// Updated Zod Schema
 const planSchema = z.object({
   goal: z.string().describe("The user's original goal."),
   tasks: z
     .array(
       z.object({
-        description: z.string().describe("Specific, actionable task description."),
-        // Using string for simplicity, prompt enforces format
-        due_date: z.string().describe("Task due date in YYYY-MM-DD format."),
+        title: z.string().describe("A concise, clear title for the task (max 5-7 words)."), // Added title
+        description: z.string().describe("A slightly more detailed description of the task, outlining the action."), // Kept description
+        due_date: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format.")
+          .describe("Task due date in YYYY-MM-DD format."), // Added regex validation
       })
     )
-    .min(1)
-    .describe("A sequential list of tasks to achieve the goal, each with a description and due date."),
+    .min(1) // Adjusted min to 1
+    .describe("A sequential list of tasks to achieve the goal."),
 });
 
 export async function POST(req: Request) {
-  // 1. Get Request Body - Expecting only 'goal'
+  // 1. Get Goal from Request Body
   let goal: string;
   try {
     const body = await req.json();
@@ -39,8 +42,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  // 2. Fetch User Context (Tasks and Spaces) from Supabase
-  // (Using the same logic as the chat route for consistency)
+  // Get Current Date
+  const currentDate = new Date().toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
+  // 2. Fetch User Context (Tasks and Spaces)
   let taskContext = "User has no current tasks listed.";
   let spaceContext = "User has no defined spaces.";
   try {
@@ -69,7 +74,7 @@ export async function POST(req: Request) {
         .join("\n");
     }
 
-    // Fetch Spaces (Optional but potentially helpful context)
+    // Fetch Spaces
     const { data: spaces, error: spacesError } = await supabase
       .from("spaces")
       .select("id, title, description")
@@ -101,23 +106,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "AI service is not configured (missing API key)" }, { status: 500 });
     }
 
-    // Define the SYSTEM prompt - Focus on the *rules* for plan generation
-    // The JSON structure itself is defined by the Zod schema passed to generateObject
-    const systemPrompt = `You are an expert planner AI. Your task is to generate a detailed, actionable plan based on the user's goal and their current context (tasks and spaces).
+    // Updated System Prompt
+    const systemPrompt = `You are an expert planner AI. Your task is to generate a detailed, actionable plan based on the user's goal, their current context (tasks and spaces), and today's date.
+Generate the plan according to the provided schema, ensuring each task has a concise 'title', a more detailed 'description', and a 'due_date'.
 Follow these requirements strictly:
-1. Create a progressive plan where each task builds upon previous ones in a logical sequence. Aim for at least 10 tasks if feasible for the goal.
-2. Include measurable milestones with specific metrics where possible.
-3. Balance different components needed for the goal (e.g., skills, knowledge, networking, actions).
-4. Include specific check-in points or review tasks for assessment and plan adjustment.
-5. Provide tasks with actionable verbs and specific details (e.g., "Research 3 online courses on X" instead of "Learn X").
-6. Ensure tasks follow a realistic progression based on estimated time needed.
-7. Include both primary activities and supporting habits/actions if relevant.
-8. Front-load more detailed guidance for the initial phase.
-9. EVERY task MUST have a specific due_date assigned in YYYY-MM-DD format. Estimate reasonable dates based on the goal and task sequence. Do NOT use "ongoing" or relative dates.
-10. For recurring activities, create separate, dated task entries representing checkpoints or completions (e.g., "Complete week 1 of daily practice [Topic]" with a specific end date for that week).`;
+1. Create a progressive plan where each task builds upon previous ones logically.
+2. 'title' should be short and clear (max 5-7 words). 'description' should explain the action.
+3. Use the provided current date to estimate realistic 'due_date' values in YYYY-MM-DD format. Do NOT use "ongoing" or relative dates.
+4. Include measurable milestones/metrics in descriptions where possible.
+5. Balance different components needed for the goal (e.g., skills, knowledge, networking, actions).
+6. Include specific check-in points or review tasks for assessment and plan adjustment.
+7. Provide actionable verbs and specific details in descriptions.
+8. Ensure tasks follow a realistic progression.
+9. For recurring activities, create separate, dated task entries representing checkpoints or completions (e.g., title: "Week 1 Daily Practice", description: "Complete daily practice for [Topic] during week 1", due_date: "YYYY-MM-DD" for end of week 1).`;
 
-    // Construct the USER prompt - Combine context and the specific goal
+    // Updated User Prompt
     const userPrompt = `---
+CURRENT DATE: ${currentDate}
+
 USER CONTEXT START
 Tasks:
 ${taskContext}
@@ -127,25 +133,19 @@ ${spaceContext}
 USER CONTEXT END
 ---
 
-Based on the rules provided in the system prompt and my current context, generate a detailed task plan for the following goal: "${goal}"`;
+Based on the rules in the system prompt, my current context, and today's date (${currentDate}), generate a detailed task plan for the following goal: "${goal}"`;
 
     console.log("Requesting plan generation for goal:", goal);
 
-    // Use generateObject with the Zod schema
     const { object: generatedPlan } = await generateObject({
-      model: google("models/gemini-2.0-flash"),
-      schema: planSchema, // Pass the Zod schema here
-      system: systemPrompt, // Pass the planning rules
-      prompt: userPrompt, // Pass the context + goal
-      // Optional: Specify mode if needed, 'json' is default for generateObject
-      // mode: 'json'
+      model: google("models/gemini-1.5-flash-latest"),
+      schema: planSchema,
+      system: systemPrompt,
+      prompt: userPrompt,
     });
 
-    // 4. Return the structured JSON response
-    // The 'object' property contains the validated and typed data
     return NextResponse.json(generatedPlan, { status: 200 });
   } catch (error: any) {
-    // Catch block for AI call and JSON parsing errors
     console.error("Error generating structured plan with Vercel AI SDK:", error);
     if (error.message && error.message.includes("API key")) {
       return NextResponse.json({ error: "Invalid Google API Key or Authentication Error" }, { status: 401 });
@@ -156,8 +156,12 @@ Based on the rules provided in the system prompt and my current context, generat
     if (error.name === "RateLimitError") {
       return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 });
     }
-    // Handle potential Zod validation errors if the AI output doesn't match schema after retries
-    if (error.message && (error.message.includes("Validation Error") || error.message.includes("Failed to parse"))) {
+    if (
+      error.message &&
+      (error.message.includes("Validation Error") ||
+        error.message.includes("Failed to parse") ||
+        error.message.includes("schema"))
+    ) {
       return NextResponse.json(
         { error: "AI failed to generate response in the expected format.", details: error.message },
         { status: 500 }

@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       <div className="w-full">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to Sensei AI!</p>
+          <p className="text-muted-foreground">Welcome to Jarvis!</p>
         </div>
 
         <Alert className="mt-6">

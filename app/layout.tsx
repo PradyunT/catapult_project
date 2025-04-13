@@ -13,7 +13,7 @@ import { SidebarTrigger } from "@/components/sidebar-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Sensei AI",
+  title: "Jarvis",
   description: "Your personal AI mentor and productivity assistant",
     generator: 'v0.dev'
 }
@@ -40,7 +40,7 @@ export default function RootLayout({
                 <main className="flex-1 overflow-auto">
                   <div className="sticky top-0 z-10 flex items-center h-16 px-4 border-b bg-background">
                     <SidebarTrigger className="mr-4" />
-                    <div className="font-semibold">Sensei AI</div>
+                    <div className="font-semibold">Jarvis</div>
                   </div>
                   <div className="p-4 w-full">{children}</div>
                 </main>

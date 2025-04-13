@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 // Types
 type SpaceInput = {
@@ -12,7 +12,7 @@ type SpaceInput = {
 
 // Get all spaces
 export async function getSpaces() {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -34,7 +34,7 @@ export async function getSpaces() {
 
 // Get space by ID
 export async function getSpaceById(id: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -56,7 +56,7 @@ export async function getSpaceById(id: string) {
 
 // Create a new space
 export async function createSpace(space: SpaceInput) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -83,7 +83,7 @@ export async function createSpace(space: SpaceInput) {
 
 // Update a space
 export async function updateSpace(id: string, updates: Partial<SpaceInput>) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -107,7 +107,7 @@ export async function updateSpace(id: string, updates: Partial<SpaceInput>) {
 
 // Delete a space
 export async function deleteSpace(id: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -131,7 +131,7 @@ export async function deleteSpace(id: string) {
 
 // Get tasks count for a space
 export async function getTasksCountForSpace(spaceId: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

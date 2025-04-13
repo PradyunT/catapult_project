@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 // Types
 type ScheduleInput = {
@@ -15,7 +15,7 @@ type ScheduleInput = {
 
 // Get all schedule items
 export async function getScheduleItems() {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -41,7 +41,7 @@ export async function getScheduleItems() {
 
 // Get schedule items for a specific date
 export async function getScheduleForDate(date: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -68,7 +68,7 @@ export async function getScheduleForDate(date: string) {
 
 // Create a new schedule item
 export async function createScheduleItem(item: ScheduleInput) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -95,7 +95,7 @@ export async function createScheduleItem(item: ScheduleInput) {
 
 // Update a schedule item
 export async function updateScheduleItem(id: string, updates: Partial<ScheduleInput>) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -119,7 +119,7 @@ export async function updateScheduleItem(id: string, updates: Partial<ScheduleIn
 
 // Delete a schedule item
 export async function deleteScheduleItem(id: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

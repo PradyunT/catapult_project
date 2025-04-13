@@ -26,31 +26,31 @@ export default function SettingsPage() {
   useEffect(() => {
     const checkInitialStatus = async () => {
       try {
-        const response = await fetch('/api/calendar/status');
-        const data = await response.json();
-        setIsGoogleCalendarConnected(data.connected);
+        const response = await fetch("/api/calendar/status")
+        const data = await response.json()
+        setIsGoogleCalendarConnected(data.connected)
       } catch (error) {
-        console.error('Error checking initial calendar status:', error);
+        console.error("Error checking initial calendar status:", error)
       }
-    };
-    checkInitialStatus();
-  }, []);
+    }
+    checkInitialStatus()
+  }, [])
 
   // Handle messages from the popup window
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === 'google-calendar-connected') {
-        setIsGoogleCalendarConnected(true);
+      if (event.data.type === "google-calendar-connected") {
+        setIsGoogleCalendarConnected(true)
         toast({
           title: "Google Calendar Connected",
           description: "Your Google Calendar has been successfully connected.",
-        });
+        })
       }
-    };
+    }
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
+  }, [])
 
   // Ensure component is mounted before accessing theme
   useEffect(() => {
@@ -82,28 +82,28 @@ export default function SettingsPage() {
   // Handle Google Calendar disconnect
   const handleGoogleCalendarDisconnect = async () => {
     try {
-      const response = await fetch('/api/calendar/disconnect', {
-        method: 'POST',
-      });
+      const response = await fetch("/api/calendar/disconnect", {
+        method: "POST",
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to disconnect Google Calendar');
+        throw new Error("Failed to disconnect Google Calendar")
       }
 
-      setIsGoogleCalendarConnected(false);
+      setIsGoogleCalendarConnected(false)
       toast({
         title: "Google Calendar Disconnected",
         description: "Your Google Calendar has been successfully disconnected.",
-      });
+      })
     } catch (error) {
-      console.error('Error disconnecting Google Calendar:', error);
+      console.error("Error disconnecting Google Calendar:", error)
       toast({
         title: "Disconnection Failed",
         description: "Failed to disconnect Google Calendar. Please try again.",
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
 
   // Handle Google Calendar integration
   const handleGoogleCalendarConnect = async () => {
@@ -114,72 +114,72 @@ export default function SettingsPage() {
       }
 
       // Call the API endpoint that will handle the Google Calendar integration
-      const response = await fetch('/api/calendar/connect', {
-        method: 'POST',
-      });
+      const response = await fetch("/api/calendar/connect", {
+        method: "POST",
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to connect to Google Calendar');
+        throw new Error("Failed to connect to Google Calendar")
       }
 
-      const data = await response.json();
-      
+      const data = await response.json()
+
       if (data.authUrl) {
         // Open the authorization URL in a new window
-        popupWindowRef.current = window.open(data.authUrl, 'Google Calendar Auth', 'width=600,height=600');
-        
-        let retryCount = 0;
-        
+        popupWindowRef.current = window.open(data.authUrl, "Google Calendar Auth", "width=600,height=600")
+
+        let retryCount = 0
+
         // Start polling for the token
         pollIntervalRef.current = setInterval(async () => {
           if (retryCount >= maxRetries) {
             if (pollIntervalRef.current) {
-              clearInterval(pollIntervalRef.current);
+              clearInterval(pollIntervalRef.current)
             }
             if (popupWindowRef.current) {
-              popupWindowRef.current.close();
+              popupWindowRef.current.close()
             }
             toast({
               title: "Connection Timeout",
               description: "Failed to connect to Google Calendar. Please try again.",
               variant: "destructive",
-            });
-            return;
+            })
+            return
           }
 
           try {
-            const statusResponse = await fetch('/api/calendar/status');
-            const statusData = await statusResponse.json();
-            
+            const statusResponse = await fetch("/api/calendar/status")
+            const statusData = await statusResponse.json()
+
             if (statusData.connected) {
               if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current);
+                clearInterval(pollIntervalRef.current)
               }
               if (popupWindowRef.current) {
-                popupWindowRef.current.close();
+                popupWindowRef.current.close()
               }
-              setIsGoogleCalendarConnected(true);
+              setIsGoogleCalendarConnected(true)
               toast({
                 title: "Google Calendar Connected",
                 description: "Your Google Calendar has been successfully connected.",
-              });
+              })
             }
           } catch (error) {
-            console.error('Error checking connection status:', error);
+            console.error("Error checking connection status:", error)
           }
 
-          retryCount++;
-        }, 2000);
+          retryCount++
+        }, 2000)
       }
     } catch (error) {
-      console.error('Error connecting to Google Calendar:', error);
+      console.error("Error connecting to Google Calendar:", error)
       toast({
         title: "Connection Failed",
         description: "Failed to connect to Google Calendar. Please try again.",
         variant: "destructive",
-      });
+      })
     }
-  };
+  }
 
   // Handle theme toggle
   const handleThemeToggle = (checked: boolean) => {
@@ -248,23 +248,14 @@ export default function SettingsPage() {
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5" />
                   <span>Google Calendar</span>
-                  {isGoogleCalendarConnected && (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  )}
+                  {isGoogleCalendarConnected && <CheckCircle2 className="h-5 w-5 text-green-500" />}
                 </div>
                 {isGoogleCalendarConnected ? (
-                  <Button 
-                    variant="destructive"
-                    onClick={handleGoogleCalendarDisconnect}
-                  >
+                  <Button variant="destructive" onClick={handleGoogleCalendarDisconnect}>
                     Disconnect
                   </Button>
                 ) : (
-                  <Button 
-                    onClick={handleGoogleCalendarConnect}
-                  >
-                    Connect
-                  </Button>
+                  <Button onClick={handleGoogleCalendarConnect}>Connect</Button>
                 )}
               </div>
               {isGoogleCalendarConnected && (
@@ -289,7 +280,8 @@ export default function SettingsPage() {
                 <BrightspaceIntegrationButton />
               </div>
               <div className="mt-4 text-sm text-muted-foreground">
-                Click the button to manually scrape and import assignments. You will need to log in via the popup window.
+                Click the button to manually scrape and import assignments. You will need to log in via the popup
+                window.
               </div>
             </CardContent>
           </Card>
@@ -320,20 +312,46 @@ export default function SettingsPage() {
         <TabsContent value="account" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>Manage your account information.</CardDescription>
+              <CardTitle>Profile Information</CardTitle>
+              <CardDescription>Update your personal information and how it appears on your profile.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleSaveAccount}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Display Name</Label>
-                    <Input id="name" placeholder="Your Name" />
+                <div className="grid gap-6">
+                  <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+                    <div className="grid gap-2 flex-1">
+                      <Label htmlFor="first-name">First Name</Label>
+                      <Input id="first-name" placeholder="John" />
+                    </div>
+                    <div className="grid gap-2 flex-1">
+                      <Label htmlFor="last-name">Last Name</Label>
+                      <Input id="last-name" placeholder="Doe" />
+                    </div>
                   </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="display-name">Display Name</Label>
+                    <Input id="display-name" placeholder="johndoe" />
+                    <p className="text-sm text-muted-foreground">
+                      This is the name that will be displayed to other users.
+                    </p>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input id="email" type="email" placeholder="john.doe@example.com" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <textarea
+                      id="bio"
+                      className="min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      placeholder="Tell us a little about yourself"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Brief description for your profile. URLs are hyperlinked.
+                    </p>
+                  </div>
+                  <Button type="submit">Save Profile Information</Button>
                 </div>
-                <Button type="submit" className="mt-4">
-                  Save Changes
-                </Button>
               </form>
             </CardContent>
           </Card>

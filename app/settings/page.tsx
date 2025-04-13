@@ -293,28 +293,6 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Outlook Integration</CardTitle>
-              <CardDescription>Connect your Outlook account to sync calendar events.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form onSubmit={handleSaveIntegration}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="outlook-email">Outlook Email</Label>
-                    <Input id="outlook-email" type="email" placeholder="your.email@outlook.com" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="outlook-password">Password</Label>
-                    <Input id="outlook-password" type="password" />
-                  </div>
-                  <Button type="submit">Save Outlook Settings</Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="account" className="space-y-4">

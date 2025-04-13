@@ -13,7 +13,7 @@ import { SidebarTrigger } from "@/components/sidebar-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Sensei AI",
+  title: "Jarvis",
   description: "Your personal AI mentor and productivity assistant",
     generator: 'v0.dev'
 }

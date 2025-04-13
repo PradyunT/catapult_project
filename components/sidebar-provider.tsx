@@ -129,7 +129,7 @@ export const SidebarProvider = React.forwardRef<
           }
           className={cn("group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar", className)}
           ref={ref}
-          data-theme={theme}
+          data-theme="system"
           {...props}
         >
           {children}

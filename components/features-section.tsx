@@ -1,32 +1,23 @@
-"use client"
-
 import { Brain, CheckSquare, Calendar, Layers } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-// Define props for the component
-interface FeaturesSectionProps {
-  onSignUpClick: () => void // Function to handle the click
-}
-
-// Accept the onSignUpClick prop
-export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
+export function FeaturesSection() {
   return (
-    <section id="features" className="py-16 md:py-24 bg-muted/50">
-      <div className="container px-4 md:px-6 mx-auto">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Features</div>
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-              Everything you need to stay organized
-            </h2>
-            <p className="max-w-[900px] mx-auto text-muted-foreground md:text-xl/relaxed">
-              Jarvis combines powerful organization tools with AI assistance to help you manage your life and achieve
-              your goals.
-            </p>
-          </div>
+    <section id="features" className="w-full py-12 md:py-24 bg-muted/50">
+      <div className="container space-y-12">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Features</div>
+          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+            Everything you need to stay organized
+          </h2>
+          <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed">
+            Jarvis combines powerful organization tools with AI assistance to help you manage your life and achieve your
+            goals.
+          </p>
         </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:gap-12">
-          <div className="flex flex-col gap-2">
+
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
+          <div className="flex flex-col gap-2 p-6 bg-background rounded-lg shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
               <Brain className="h-6 w-6 text-primary" />
             </div>
@@ -36,7 +27,7 @@ export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
               to provide meaningful advice tailored to your needs.
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-6 bg-background rounded-lg shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
               <CheckSquare className="h-6 w-6 text-primary" />
             </div>
@@ -46,7 +37,7 @@ export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
               to keep everything neatly categorized.
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-6 bg-background rounded-lg shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
               <Calendar className="h-6 w-6 text-primary" />
             </div>
@@ -56,7 +47,7 @@ export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
               milestones, and track your progress alongside your daily activities.
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-6 bg-background rounded-lg shadow-sm">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
               <Layers className="h-6 w-6 text-primary" />
             </div>
@@ -67,8 +58,9 @@ export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
             </p>
           </div>
         </div>
+
         <div className="flex justify-center">
-          <div className="flex flex-col items-center space-y-6 rounded-xl bg-muted p-6 sm:p-8 md:p-10 max-w-3xl">
+          <div className="flex flex-col items-center space-y-6 rounded-xl bg-background p-6 sm:p-8 md:p-10 max-w-3xl shadow-sm">
             <div className="text-center">
               <h3 className="text-2xl font-bold sm:text-3xl mb-2">Ready to transform your productivity?</h3>
               <p className="text-muted-foreground text-lg">
@@ -76,11 +68,7 @@ export function FeaturesSection({ onSignUpClick }: FeaturesSectionProps) {
                 their goals.
               </p>
             </div>
-            <Button
-              size="lg"
-              className="bg-primary text-primary-foreground px-8 py-6 text-base"
-              onClick={onSignUpClick}
-            >
+            <Button size="lg" className="bg-primary text-primary-foreground px-8 py-6 text-base">
               Sign Up
             </Button>
           </div>

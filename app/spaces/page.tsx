@@ -6,39 +6,70 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import { getSpaces } from "@/app/actions/space-actions"
-import { getTasksCountForSpace } from "@/app/actions/space-actions"
+import { getSpaces, getTasksCountForSpace, createSpace } from "@/app/actions/space-actions"
+import { NewSpaceDialog } from "@/components/new-space-dialog"
+import { toast } from "@/components/ui/use-toast"
 
 export default function SpacesPage() {
   const [spaces, setSpaces] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const spacesData = await getSpaces()
-
-        // Get task counts for each space
-        const spacesWithCounts = await Promise.all(
-          spacesData.map(async (space) => {
-            const taskCount = await getTasksCountForSpace(space.id)
-            return {
-              ...space,
-              taskCount,
-            }
-          }),
-        )
-
-        setSpaces(spacesWithCounts)
-      } catch (error) {
-        console.error("Error loading spaces:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
+    loadSpaces()
   }, [])
+
+  async function loadSpaces() {
+    try {
+      setLoading(true)
+      const spacesData = await getSpaces()
+
+      // Get task counts for each space
+      const spacesWithCounts = await Promise.all(
+        spacesData.map(async (space) => {
+          const taskCount = await getTasksCountForSpace(space.id)
+          return {
+            ...space,
+            taskCount,
+          }
+        }),
+      )
+
+      setSpaces(spacesWithCounts)
+    } catch (error) {
+      console.error("Error loading spaces:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load spaces. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateSpace = async (spaceData: { title: string; description: string; color: string }) => {
+    try {
+      const newSpace = await createSpace(spaceData)
+      toast({
+        title: "Space created",
+        description: `"${spaceData.title}" has been created successfully.`,
+      })
+
+      // Reload spaces to include the new one
+      await loadSpaces()
+
+      // Close the dialog
+      setIsDialogOpen(false)
+    } catch (error) {
+      console.error("Error creating space:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create space. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -49,7 +80,7 @@ export default function SpacesPage() {
         </div>
         <div className="flex items-center gap-2">
           <SidebarTrigger className="md:hidden" />
-          <Button>
+          <Button onClick={() => setIsDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Space
           </Button>
@@ -94,6 +125,8 @@ export default function SpacesPage() {
           )}
         </div>
       )}
+
+      <NewSpaceDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} onCreateSpace={handleCreateSpace} />
     </div>
   )
 }

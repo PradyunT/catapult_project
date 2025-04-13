@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -8,33 +7,29 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          created_at: string
+          gmail_data: Json | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          gmail_data?: Json | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          gmail_data?: Json | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       schedule: {
         Row: {
           created_at: string | null
@@ -278,9 +273,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

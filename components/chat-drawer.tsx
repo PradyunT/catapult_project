@@ -30,28 +30,52 @@ export function ChatDrawer() {
     }
   }, [context])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
-
-    // Add user message
-    const userMessage = { role: "user" as const, content: input }
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
-
-    // Simulate AI response
-    setTimeout(() => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+  
+    // 1) Add user message to local state
+    const userMessage = { role: "user" as const, content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+  
+    try {
+      // 2) Call our /api/gemini route, passing the user input
+      const res = await fetch("/api/gemini", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userMessage: input }),
+      });
+  
+      if (!res.ok) {
+        throw new Error(`Gemini fetch error: ${res.status}`);
+      }
+  
+      const data = await res.json();
+  
+      // data.assistantMessage is the LLM response
+      const assistantResponse = data.assistantMessage || "No response";
+  
+      // 3) Add the assistant's message to local state
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: `I'm a placeholder response${context ? ` for your ${context} space` : ""}. In the full implementation, I would use the AI SDK to generate a proper response.`,
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
-  }
+        { role: "assistant" as const, content: assistantResponse },
+      ]);
+    } catch (err) {
+      console.error("Error calling Gemini route:", err);
+      // Optionally show an error message from the "assistant"
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant" as const, content: "Error from LLM." },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   // Scroll to bottom when messages change
   React.useEffect(() => {

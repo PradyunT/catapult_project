@@ -125,7 +125,7 @@ export default function ChatPage() {
                 </Button>
                 <Button variant="outline" className="w-full justify-start" onClick={handleDailyOverview} disabled={isLoading}>
                   <RefreshCw className="mr-2 h-4 w-4" />
-                  Generate Daily Overview
+                  Create Daily Overview
                 </Button>
                 <Button variant="outline" className="w-full justify-start" onClick={handleSuggestTasks} disabled={isLoading}>
                   <ListTodo className="mr-2 h-4 w-4" />

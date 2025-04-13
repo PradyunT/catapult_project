@@ -205,10 +205,10 @@ export default function SettingsPage() {
         <SidebarTrigger className="md:hidden" />
       </div>
 
-      <Tabs defaultValue="appearance" className="space-y-4">
+      <Tabs defaultValue="integrations" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 

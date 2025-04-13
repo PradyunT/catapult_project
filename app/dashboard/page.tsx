@@ -9,14 +9,10 @@ import { checkDatabaseHasData } from "@/app/actions/db-init-actions"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Database } from "lucide-react"
 import { checkDatabaseSeeded } from "@/app/actions/system-settings-actions"
-import { DateNavigation } from "@/components/date-navigation"
 import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { date?: string }
-}) {
+export default async function DashboardPage() {
   // Check if database has data
   const hasData = await checkDatabaseHasData()
 
@@ -55,10 +51,10 @@ export default async function DashboardPage({
   }
 
   // Get data
-  const currentDate = searchParams.date ? new Date(searchParams.date) : new Date()
+  const today = new Date()
   const allTasks = await getTasks()
   const todayTasks = await getTodayTasks()
-  const scheduleItems = await getScheduleForDate(currentDate.toISOString().split("T")[0])
+  const scheduleItems = await getScheduleForDate(today.toISOString().split("T")[0])
 
   const totalTasks = allTasks.length
   const completedTasks = todayTasks.filter(task => task.completed).length
@@ -66,16 +62,19 @@ export default async function DashboardPage({
   const completionPercentage = todayTasks.length > 0 ? (completedTasks / todayTasks.length) * 100 : 0
 
   return (
-    <div className="w-full space-y-6">
-      {/* Header Section with Date Navigation */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of your day.</p>
+    <div className="w-full space-y-8">
+      {/* Header Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <Calendar className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Welcome back! Here's your daily overview</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <DateNavigation currentDate={currentDate} />
-        </div>
+        <Separator />
       </div>
 
       {/* Stats Grid */}

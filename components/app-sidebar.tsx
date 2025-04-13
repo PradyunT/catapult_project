@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { LayoutDashboard, CheckSquare, Layers, MessageSquare, Settings, Brain } from "lucide-react"
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { LayoutDashboard, CheckSquare, Layers, MessageSquare, Settings, Brain } from "lucide-react";
 
 import {
   Sidebar,
@@ -12,9 +12,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "@/components/sidebar-provider"
-import { useEffect, useState } from "react"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/sidebar-provider";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Define the base navigation items
 const baseNavItems = [
@@ -43,38 +43,38 @@ const baseNavItems = [
     href: "/settings",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
-  const [spaces, setSpaces] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const pathname = usePathname();
+  const [spaces, setSpaces] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch spaces for the sidebar
   useEffect(() => {
     async function fetchSpaces() {
       try {
-        const response = await fetch("/api/spaces")
+        const response = await fetch("/api/spaces");
         if (response.ok) {
-          const data = await response.json()
-          setSpaces(data || [])
+          const data = await response.json();
+          setSpaces(data || []);
         }
       } catch (error) {
-        console.error("Error fetching spaces:", error)
+        console.error("Error fetching spaces:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchSpaces()
-  }, [])
+    fetchSpaces();
+  }, []);
 
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <Brain className="h-6 w-6" />
-          <span className="font-semibold">Sensei AI</span>
+          <span className="font-semibold">Jarvis</span>
         </div>
       </SidebarHeader>
       <SidebarContent className="px-4">
@@ -127,8 +127,8 @@ export function AppSidebar() {
         </div>
       </SidebarContent>
       <SidebarFooter className="p-4 mt-auto">
-        <div className="text-xs text-muted-foreground">Sensei AI © {new Date().getFullYear()}</div>
+        <div className="text-xs text-muted-foreground">Jarvis © {new Date().getFullYear()}</div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

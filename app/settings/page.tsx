@@ -216,7 +216,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Appearance</CardTitle>
-              <CardDescription>Customize how Sensei AI looks on your device.</CardDescription>
+              <CardDescription>Customize how Jarvis looks on your device.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

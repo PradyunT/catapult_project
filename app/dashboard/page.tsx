@@ -1,65 +1,25 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ListTodo, Calendar, Clock, CheckCircle2, AlertCircle } from "lucide-react"
-import { TaskList } from "@/components/task-list"
-import { DailySchedule } from "@/components/daily-schedule"
-import { getTasks, getTodayTasks } from "@/app/actions/task-actions"
-import { getScheduleForDate } from "@/app/actions/schedule-actions"
-import { SeedButton } from "@/components/seed-button"
-import { checkDatabaseHasData } from "@/app/actions/db-init-actions"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Database } from "lucide-react"
-import { checkDatabaseSeeded } from "@/app/actions/system-settings-actions"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ListTodo, Calendar, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { TaskList } from "@/components/task-list";
+import { DailySchedule } from "@/components/daily-schedule";
+import { getTasks, getTodayTasks } from "@/app/actions/task-actions";
+import { getScheduleForDate } from "@/app/actions/schedule-actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Database } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 export default async function DashboardPage() {
-  // Check if database has data
-  const hasData = await checkDatabaseHasData()
-
-  // Try to check if database has been seeded, but handle potential errors
-  let isSeeded = false
-  try {
-    isSeeded = await checkDatabaseSeeded()
-  } catch (error) {
-    console.error("Error checking if database is seeded:", error)
-    // Continue with isSeeded = false
-  }
-
-  // If database doesn't have data and hasn't been marked as seeded, show a message to seed the database
-  if (!hasData && !isSeeded) {
-    return (
-      <div className="w-full">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to Jarvis!</p>
-        </div>
-
-        <Alert className="mt-6">
-          <Database className="h-4 w-4" />
-          <AlertTitle>Database is empty</AlertTitle>
-          <AlertDescription>
-            Your database tables are set up, but there's no data yet. Click the button below to seed your database with
-            sample data.
-          </AlertDescription>
-        </Alert>
-
-        <div className="flex justify-center mt-6">
-          <SeedButton />
-        </div>
-      </div>
-    )
-  }
-
   // Get data
-  const today = new Date()
-  const allTasks = await getTasks()
-  const todayTasks = await getTodayTasks()
-  const scheduleItems = await getScheduleForDate(today.toISOString().split("T")[0])
+  const today = new Date();
+  const allTasks = await getTasks();
+  const todayTasks = await getTodayTasks();
+  const scheduleItems = await getScheduleForDate(today.toISOString().split("T")[0]);
 
-  const totalTasks = allTasks.length
-  const completedTasks = todayTasks.filter(task => task.completed).length
-  const pendingTasks = todayTasks.filter(task => !task.completed).length
-  const completionPercentage = todayTasks.length > 0 ? (completedTasks / todayTasks.length) * 100 : 0
+  const totalTasks = allTasks.length;
+  const completedTasks = todayTasks.filter((task) => task.completed).length;
+  const pendingTasks = todayTasks.filter((task) => !task.completed).length;
+  const completionPercentage = todayTasks.length > 0 ? (completedTasks / todayTasks.length) * 100 : 0;
 
   return (
     <div className="w-full space-y-8">
@@ -166,5 +126,5 @@ export default async function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

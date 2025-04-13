@@ -230,7 +230,7 @@ export default function ChatPage() {
             // Render Chat Card
             <Card className="flex h-[calc(100vh-12rem)] flex-col">
               <CardHeader className="px-4 py-3">
-                <CardTitle className="text-lg font-medium">Chat with Sensei AI</CardTitle>
+                <CardTitle className="text-lg font-medium">Chat with Jarvis</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 overflow-y-auto p-4">
                 {/* Chat messages list */}
@@ -301,7 +301,7 @@ export default function ChatPage() {
                       <DialogHeader>
                         <DialogTitle>Generate Task Plan</DialogTitle>
                         <DialogDescription>
-                          Enter your goal below, and Sensei AI will generate a step-by-step task plan.
+                          Enter your goal below, and Jarvis will generate a step-by-step task plan.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">

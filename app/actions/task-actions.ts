@@ -2,8 +2,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "@/lib/supabase-server"; // Adjust if your client setup is different
 import type { Database } from "@/lib/database.types"; // Adjust path if your types are elsewhere
+import { createClient } from "@/lib/supabase-server";
 
 // Existing TaskInput type (if used elsewhere)
 type TaskInput = {
@@ -26,7 +26,7 @@ type PlanTaskData = {
 };
 
 export async function getTasks() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -49,7 +49,7 @@ export async function getTasks() {
 }
 
 export async function getTodayTasks() {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -78,7 +78,7 @@ export async function getTodayTasks() {
 }
 
 export async function createTask(task: TaskInput) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -102,7 +102,7 @@ export async function createTask(task: TaskInput) {
 }
 
 export async function updateTask(id: string, updates: Partial<TaskInput>) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -123,7 +123,7 @@ export async function updateTask(id: string, updates: Partial<TaskInput>) {
 }
 
 export async function deleteTask(id: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -149,7 +149,7 @@ export async function toggleTaskCompletion(id: string, completed: boolean) {
 
 // --- Updated Batch Create Function ---
 export async function batchCreateTasks(tasksData: PlanTaskData[]) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

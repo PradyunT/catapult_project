@@ -1,5 +1,6 @@
 // types/plan.ts
 export interface SuggestedTask {
+  title: string; // Added title
   description: string;
   due_date: string;
   status: "pending" | "accepted" | "rejected";
@@ -8,7 +9,11 @@ export interface SuggestedTask {
 
 export interface PlanResponse {
   goal: string;
-  tasks: { description: string; due_date: string }[];
+  tasks: {
+    title: string; // Added title
+    description: string;
+    due_date: string;
+  }[];
 }
 
 export interface SuggestedPlan {

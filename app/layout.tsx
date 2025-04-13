@@ -35,9 +35,9 @@ export default function RootLayout({
         >
           <SidebarProvider defaultOpen={false}>
             <ChatDrawerProvider>
-              <div className="flex min-h-screen min-w-[90vw]">
+              <div className="flex min-h-screen min-w-[99vw]">
                 <AppSidebar />
-                <main className="flex-1 overflow-auto">
+                <main className="flex-1 overflow-auto mx-auto">
                   <div className="sticky top-0 z-10 flex items-center h-16 px-4 border-b bg-background">
                     <SidebarTrigger className="mr-4" />
                     <div className="font-semibold">Sensei AI</div>

@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button"; // Import the Button component
 const BrightspaceIntegrationButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   const handleClick = async () => {
+    if (isConnected) return; // Don't do anything if already connected
+    
     setIsLoading(true);
     setMessage(null); // Clear previous messages
     try {
@@ -24,7 +27,8 @@ const BrightspaceIntegrationButton: React.FC = () => {
 
       const data = await response.json(); // data should be Task[]
       console.log('Scraped Assignments:', data);
-      setMessage(`Successfully scraped ${data.length} assignments!`);
+      //setMessage(`Successfully scraped ${data.length} assignments!`);
+      setIsConnected(true); // Set connected state to true after successful import
       // You can now process the 'data' array (e.g., update state, display results)
 
     } catch (error) {
@@ -41,9 +45,8 @@ const BrightspaceIntegrationButton: React.FC = () => {
       <Button 
         onClick={handleClick} 
         disabled={isLoading}
-        className="bg-white text-black border border-white-300 hover:bg-white-100 dark:bg-white-800 dark:text-black dark:border-gray-600 dark:hover:bg-gray-200"
       >
-        {isLoading ? 'Scraping...' : 'Import Assignments'}
+        {isLoading ? 'Scraping...' : isConnected ? 'Connected' : 'Import Assignments'}
       </Button>
       {message && 
         <p className={`mt-2 text-sm ${message.startsWith('Error:') ? 'text-red-600' : 'text-muted-foreground'}`}>

@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { useTheme } from "next-themes"
-import { Moon, Sun, Calendar, CheckCircle2, XCircle } from "lucide-react"
+import { Moon, Sun, Calendar, CheckCircle2, BookOpen } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { useState, useEffect, useRef } from "react"
+import BrightspaceIntegrationButton from "@/components/BrightspaceIntegrationButton"
 
 export default function SettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme()
@@ -280,19 +281,16 @@ export default function SettingsPage() {
               <CardDescription>Connect your Brightspace account to import assignments and deadlines.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <form onSubmit={handleSaveIntegration}>
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="brightspace-url">Brightspace URL</Label>
-                    <Input id="brightspace-url" placeholder="https://your-institution.brightspace.com" />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="brightspace-api-key">API Key</Label>
-                    <Input id="brightspace-api-key" type="password" />
-                  </div>
-                  <Button type="submit">Save Brightspace Settings</Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <BookOpen className="h-5 w-5" />
+                  <span>Brightspace Assignments</span>
                 </div>
-              </form>
+                <BrightspaceIntegrationButton />
+              </div>
+              <div className="mt-4 text-sm text-muted-foreground">
+                Click the button to manually scrape and import assignments. You will need to log in via the popup window.
+              </div>
             </CardContent>
           </Card>
 

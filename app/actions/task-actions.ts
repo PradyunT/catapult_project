@@ -27,14 +27,14 @@ type PlanTaskData = {
 
 export async function getTasks() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch tasks.");
-    return [];
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch tasks.");
+  //   return [];
+  // }
 
   const { data, error } = await supabase
     .from("tasks")
@@ -50,14 +50,14 @@ export async function getTasks() {
 
 export async function getTodayTasks() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch today's tasks.");
-    return [];
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch today's tasks.");
+  //   return [];
+  // }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -79,14 +79,14 @@ export async function getTodayTasks() {
 
 export async function createTask(task: TaskInput) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to create task.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to create task.");
+  //   return null;
+  // }
 
   // Add user_id to the task data
   const taskWithUser = { ...task, user_id: user.id };
@@ -103,14 +103,14 @@ export async function createTask(task: TaskInput) {
 
 export async function updateTask(id: string, updates: Partial<TaskInput>) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to update task.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to update task.");
+  //   return null;
+  // }
 
   const { data, error } = await supabase.from("tasks").update(updates).eq("id", id).eq("user_id", user.id).select();
   if (error) {
@@ -124,14 +124,14 @@ export async function updateTask(id: string, updates: Partial<TaskInput>) {
 
 export async function deleteTask(id: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to delete task.");
-    return false;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to delete task.");
+  //   return false;
+  // }
 
   const { error } = await supabase.from("tasks").delete().eq("id", id).eq("user_id", user.id);
   if (error) {
@@ -150,14 +150,14 @@ export async function toggleTaskCompletion(id: string, completed: boolean) {
 // --- Updated Batch Create Function ---
 export async function batchCreateTasks(tasksData: PlanTaskData[]) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to batch create tasks.");
-    return { success: false, error: "User not authenticated." };
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to batch create tasks.");
+  //   return { success: false, error: "User not authenticated." };
+  // }
 
   if (!tasksData || tasksData.length === 0) {
     return { success: false, error: "No task data provided." };

@@ -13,14 +13,14 @@ type SpaceInput = {
 // Get all spaces
 export async function getSpaces() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch spaces.");
-    return [];
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch spaces.");
+  //   return [];
+  // }
 
   const { data, error } = await supabase.from("spaces").select("*").eq("user_id", user.id).order("title", { ascending: true });
 
@@ -35,14 +35,14 @@ export async function getSpaces() {
 // Get space by ID
 export async function getSpaceById(id: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch space.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch space.");
+  //   return null;
+  // }
 
   const { data, error } = await supabase.from("spaces").select("*").eq("id", id).eq("user_id", user.id).single();
 
@@ -57,14 +57,14 @@ export async function getSpaceById(id: string) {
 // Create a new space
 export async function createSpace(space: SpaceInput) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to create space.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to create space.");
+  //   return null;
+  // }
 
   // Add user_id to the space data
   const spaceWithUser = { ...space, user_id: user.id };
@@ -84,14 +84,14 @@ export async function createSpace(space: SpaceInput) {
 // Update a space
 export async function updateSpace(id: string, updates: Partial<SpaceInput>) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to update space.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to update space.");
+  //   return null;
+  // }
 
   const { data, error } = await supabase.from("spaces").update(updates).eq("id", id).eq("user_id", user.id).select();
 
@@ -108,14 +108,14 @@ export async function updateSpace(id: string, updates: Partial<SpaceInput>) {
 // Delete a space
 export async function deleteSpace(id: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to delete space.");
-    return false;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to delete space.");
+  //   return false;
+  // }
 
   const { error } = await supabase.from("spaces").delete().eq("id", id).eq("user_id", user.id);
 
@@ -132,14 +132,14 @@ export async function deleteSpace(id: string) {
 // Get tasks count for a space
 export async function getTasksCountForSpace(spaceId: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to count tasks for space.");
-    return 0;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to count tasks for space.");
+  //   return 0;
+  // }
 
   // First, verify the space belongs to the user (optional but good practice)
   const { data: spaceData, error: spaceError } = await supabase

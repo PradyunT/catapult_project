@@ -16,14 +16,14 @@ type ScheduleInput = {
 // Get all schedule items
 export async function getScheduleItems() {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch schedule items.");
-    return [];
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch schedule items.");
+  //   return [];
+  // }
 
   const { data, error } = await supabase
     .from("schedule")
@@ -42,14 +42,14 @@ export async function getScheduleItems() {
 // Get schedule items for a specific date
 export async function getScheduleForDate(date: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to fetch schedule for date.");
-    return [];
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to fetch schedule for date.");
+  //   return [];
+  // }
 
   const { data, error } = await supabase
     .from("schedule")
@@ -69,14 +69,14 @@ export async function getScheduleForDate(date: string) {
 // Create a new schedule item
 export async function createScheduleItem(item: ScheduleInput) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to create schedule item.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to create schedule item.");
+  //   return null;
+  // }
 
   // Add user_id to the schedule item data
   const itemWithUser = { ...item, user_id: user.id };
@@ -96,14 +96,14 @@ export async function createScheduleItem(item: ScheduleInput) {
 // Update a schedule item
 export async function updateScheduleItem(id: string, updates: Partial<ScheduleInput>) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to update schedule item.");
-    return null;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to update schedule item.");
+  //   return null;
+  // }
 
   const { data, error } = await supabase.from("schedule").update(updates).eq("id", id).eq("user_id", user.id).select();
 
@@ -120,14 +120,14 @@ export async function updateScheduleItem(id: string, updates: Partial<ScheduleIn
 // Delete a schedule item
 export async function deleteScheduleItem(id: string) {
   const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
 
-  if (!user) {
-    console.error("User not authenticated to delete schedule item.");
-    return false;
-  }
+  // if (!user) {
+  //   console.error("User not authenticated to delete schedule item.");
+  //   return false;
+  // }
 
   const { error } = await supabase.from("schedule").delete().eq("id", id).eq("user_id", user.id);
 

@@ -1,152 +1,182 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { X } from "lucide-react"
-import { useChatDrawer } from "@/components/chat-drawer-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
+import * as React from "react";
+import { X, Send, Loader2 } from "lucide-react";
+import { useChatDrawer } from "@/components/chat-drawer-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { useChat } from "ai/react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function ChatDrawer() {
-  const { isOpen, close, context } = useChatDrawer()
-  const [messages, setMessages] = React.useState<{ role: "user" | "assistant"; content: string }[]>([
-    { role: "assistant", content: "Hello! I'm your AI assistant. How can I help you today?" },
-  ])
-  const [input, setInput] = React.useState("")
-  const [isLoading, setIsLoading] = React.useState(false)
-  const messagesEndRef = React.useRef<HTMLDivElement>(null)
+  const { isOpen, close, context } = useChatDrawer();
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
-  // Update initial message when context changes
+  // --- Use useChat Hook ---
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    error,
+    setMessages,
+    append,
+  } = useChat({
+    api: "/api/chat", // Point this to your chat API route
+  });
+
+  // --- Effect to set initial message based on context ---
   React.useEffect(() => {
-    if (context) {
+    if (context && messages.length === 0) {
       setMessages([
         {
+          id: `initial-context-${context}`,
           role: "assistant",
-          content: `Hello! I'm your AI assistant for the ${context} space. How can I help you with your ${context.toLowerCase()} tasks today?`,
+          content: `Hello! How can I help you with the "${context}" space today?`,
         },
-      ])
+      ]);
+    } else if (!context && messages.length === 0) {
+      setMessages([
+        {
+          id: "initial-default",
+          role: "assistant",
+          content: "Hello! How can I help?",
+        },
+      ]);
     }
-  }, [context])
+  }, [context, messages.length, setMessages]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // --- Effect to scroll to bottom on messages change ---
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [messages]);
+
+  // --- Modified handleSubmit to pass extra "options" if needed ---
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-  
-    // 1) Add user message to local state
-    const userMessage = { role: "user" as const, content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-  
-    try {
-      // 2) Call our /api/gemini route, passing the user input
-      const res = await fetch("/api/gemini", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userMessage: input }),
-      });
-  
-      if (!res.ok) {
-        throw new Error(`Gemini fetch error: ${res.status}`);
-      }
-  
-      const data = await res.json();
-  
-      // data.assistantMessage is the LLM response
-      const assistantResponse = data.assistantMessage || "No response";
-  
-      // 3) Add the assistant's message to local state
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant" as const, content: assistantResponse },
-      ]);
-    } catch (err) {
-      console.error("Error calling Gemini route:", err);
-      // Optionally show an error message from the "assistant"
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant" as const, content: "Error from LLM." },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
 
-  // Scroll to bottom when messages change
-  React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    /**
+     * Optionally, you can pass extra body data to your server if your
+     * useChat config supports it. For example:
+     *
+     * handleSubmit(e, {
+     *   options: {
+     *     body: {
+     *       prompt: "You are a specialized agent..."
+     *     }
+     *   }
+     * });
+     *
+     * The crucial part is that `useChat`/`ai/react` must accept an `options`
+     * param in the handleSubmit signature. If not, you can just call handleSubmit(e).
+     */
+
+    handleSubmit(e, {
+      options: {
+        body: {
+          // Give it a property name like "prompt" or "systemPrompt"
+          systemPrompt:
+          "You are a AI assistant to help people organize. Answer the first question with \"I am Jarvis, your personal AI \"",
+        },
+      },
+    });
+  };
 
   return (
     <div
       className={cn(
-        "fixed inset-y-0 right-0 z-40 w-full max-w-xs transform bg-background shadow-xl transition-transform duration-300 ease-in-out",
-        isOpen ? "translate-x-0" : "translate-x-full",
+        "fixed inset-y-0 right-0 z-40 w-full max-w-xs transform border-l bg-background shadow-xl transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-x-0" : "translate-x-full"
       )}
     >
-      <Card className="flex h-full flex-col rounded-none border-l">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3">
+      <Card className="flex h-full flex-col rounded-none border-0">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b px-4 py-3">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-lg font-medium">AI Assistant</CardTitle>
+            <CardTitle className="text-base font-medium">AI Assistant</CardTitle>
             {context && (
-              <Badge variant="outline" className="ml-2">
-                Context: {context}
+              <Badge variant="secondary" className="text-xs">
+                {context}
               </Badge>
             )}
           </div>
-          <Button variant="ghost" size="icon" onClick={close}>
-            <X className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={close}>
+            <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </Button>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4">
-          <div className="flex flex-col space-y-4">
-            {messages.map((message, index) => (
-              <div key={index} className={cn("flex", message.role === "user" ? "justify-end" : "justify-start")}>
+        <ScrollArea className="flex-1">
+          <CardContent className="p-4">
+            <div className="flex flex-col space-y-3">
+              {messages.map((message) => (
                 <div
-                  className={cn(
-                    "rounded-lg px-3 py-2 max-w-[80%]",
-                    message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
-                  )}
+                  key={message.id}
+                  className={cn("flex text-sm", message.role === "user" ? "justify-end" : "justify-start")}
                 >
-                  {message.content}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="rounded-lg bg-muted px-3 py-2">
-                  <div className="flex space-x-1">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-75"></div>
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground delay-150"></div>
+                  <div
+                    className={cn(
+                      "prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap rounded-md px-2.5 py-1.5",
+                      "max-w-[90%]",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}
+                  >
+                    {/* Render assistant messages with markdown */}
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-2">
-          <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+              ))}
+              <div ref={messagesEndRef} />
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="rounded-md bg-muted px-2.5 py-1.5">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                </div>
+              )}
+              {error && (
+                <div className="flex justify-start">
+                  <div className="rounded-md border border-destructive bg-destructive/10 px-2.5 py-1.5 text-xs text-destructive">
+                    Error: {error.message || "Failed to get response."}
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </ScrollArea>
+        <CardFooter className="border-t p-3">
+          <form onSubmit={handleFormSubmit} className="flex w-full space-x-2">
             <Input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              onChange={handleInputChange}
+              placeholder="Ask anything..."
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 h-9 text-sm"
             />
-            <Button type="submit" size="sm" disabled={isLoading || !input.trim()}>
-              Send
+            <Button
+              type="submit"
+              size="icon"
+              className="h-9 w-9 flex-shrink-0"
+              disabled={isLoading || !input.trim()}
+              aria-label="Send message"
+            >
+              <Send className="h-4 w-4" />
             </Button>
           </form>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
